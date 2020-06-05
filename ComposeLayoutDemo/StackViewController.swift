@@ -16,7 +16,7 @@ class StackViewController: UIViewController {
     let upperRegion = IntrinsicSizedView()
     let lowerRegion = IntrinsicSizedView()
 
-    let webView = ComposerWebView(frame: CGRect(x: 0, y: 0, width: 320, height: 640))
+    let webView = ComposerWebView(frame: .zero)
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -48,7 +48,7 @@ class StackViewController: UIViewController {
         webView.backgroundColor = .blue
         webView.scrollView.isScrollEnabled = false
         webView.scrollView.backgroundColor = .green
-        webView.scrollView.delegate = self
+        webView.scrollView.delegate = webView
         webView.navigationDelegate = self
 
         webView.loadHTMLString(htmlContent, baseURL: nil)
@@ -92,24 +92,25 @@ extension StackViewController: WKNavigationDelegate {
     }
 }
 
-extension StackViewController: UIScrollViewDelegate {
-    // force inner scrollView stay un-scrolled
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        scrollView.contentOffset = CGPoint(x: 0, y: 0)
-    }
-}
-
 extension StackViewController {
     @objc func keyboardWillBeShown(note: Notification) {
         print("keyboard show")
+        print(scrollView.contentOffset)
+        print(webView.cursorView()?.frame)
         scrollView.snp.updateConstraints { (maker) in
             // TODO: should use dynamic keyboard height
             maker.bottom.equalToSuperview().inset(300)
         }
+
+//        self.webView.evaluateJavaScript("getCursorPosition()") { (returnValue, error) in
+//            print("returnValue")
+//            print(returnValue)
+//        }
     }
 
     @objc func keyboardWillBeHidden(note: Notification) {
         print("keyboard hide")
+        print(scrollView.contentOffset)
         scrollView.snp.updateConstraints { (maker) in
             maker.bottom.equalToSuperview()
         }

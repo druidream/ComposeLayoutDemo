@@ -65,15 +65,3 @@ extension ContentConstraintViewController: WKNavigationDelegate {
         webView.invalidateIntrinsicContentSize()
     }
 }
-
-extension WKWebView {
-    func browserView() -> UIView? {
-        for subview in self.scrollView.subviews {
-            if NSStringFromClass(type(of: subview)).starts(with: "WKContentView") {
-                return subview
-            }
-        }
-
-        return nil
-    }
-}
