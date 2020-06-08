@@ -17,6 +17,7 @@ class StackViewController: UIViewController {
     let lowerRegion = IntrinsicSizedView()
 
     let webView = ComposerWebView(frame: .zero)
+    var previousCursorFrame: CGRect?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -59,12 +60,13 @@ class StackViewController: UIViewController {
 
     func observeWebViewHeightChange() {
         let options = NSKeyValueObservingOptions([.new])
-        webView.scrollView.addObserver(self, forKeyPath: "contentSize", options: options, context: &MyObservationContext)
+        webView.scrollView.addObserver(self, forKeyPath: #keyPath(UIScrollView.contentSize), options: options, context: &MyObservationContext)
     }
 
     func observeKeyboardNotifications() {
         let center = NotificationCenter.default
         center.addObserver(self, selector: #selector(keyboardWillBeShown(note:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        center.addObserver(self, selector: #selector(keyboardDidShow(note:)), name: UIResponder.keyboardDidShowNotification, object: nil)
         center.addObserver(self, selector: #selector(keyboardWillBeHidden(note:)), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
 
@@ -76,9 +78,15 @@ class StackViewController: UIViewController {
         }
 
         switch (keyPath, context) {
-        case("contentSize", &MyObservationContext):
+        case(#keyPath(UIScrollView.contentSize), &MyObservationContext):
             print("contentSize height: ", webView.scrollView.contentSize.height)
             webView.invalidateIntrinsicContentSize()
+        case("frame", &MyObservationContext):
+            print("frame: ", webView.cursorView()?.frame)
+            if previousCursorFrame != webView.cursorView()?.frame {
+                previousCursorFrame = webView.cursorView()?.frame
+                scrollCursorToVisible(animated: false)
+            }
         default:
             super.observeValue(forKeyPath: keyPath, of: object, change: change, context: context)
         }
@@ -106,6 +114,25 @@ extension StackViewController {
 //            print("returnValue")
 //            print(returnValue)
 //        }
+    }
+
+    @objc func keyboardDidShow(note: Notification) {
+        scrollCursorToVisible(animated: true)
+        webView.cursorView()?.addObserver(self, forKeyPath: #keyPath(UIView.frame), options: .new, context: &MyObservationContext)
+    }
+
+    private func scrollCursorToVisible(animated: Bool) {
+        let viewportHeight = 568 - 300
+        let cursorFrame = webView.cursorView()!.frame
+        let cursorTopMargin = 20 + 300 + 16 + Int(cursorFrame.minY)
+        let scrollOffset = Int(scrollView.contentOffset.y)
+
+        if cursorTopMargin - scrollOffset > viewportHeight {
+            print("should scroll")
+            let visibleRect = CGRect(x: 0, y: cursorTopMargin, width: 1, height: 1)
+            print("visibleRect: ", visibleRect)
+            scrollView.scrollRectToVisible(visibleRect, animated: animated)
+        }
     }
 
     @objc func keyboardWillBeHidden(note: Notification) {

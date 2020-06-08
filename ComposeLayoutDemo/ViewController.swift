@@ -129,7 +129,7 @@ var htmlContent: String {
             return window.getSelection().getRangeAt(0).getBoundingClientRect()
         }
     """
-    var html = "<html><head><meta content='minimum-scale=0.1, user-scalable=no, width=device-width' name='viewport'><script type='text/javascript'>\(js)</script></head><body onload='initEditor()'><div id='editor' contenteditable='true' style='height: 568'>test</div></body></html>"
+    var html = "<html><head><meta content='minimum-scale=0.1, user-scalable=no, width=device-width' name='viewport'><script type='text/javascript'>\(js)</script></head><body><div id='editor' contenteditable='true' style='height: 568' autocorrect='off' autocapitalize='on'>test<br/>test2</div></body></html>"
     guard let filePath = Bundle.main.path(forResource: "editor", ofType: "js") else {
         return ""
     }
