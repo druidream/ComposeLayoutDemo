@@ -81,6 +81,8 @@ class StackViewController: UIViewController {
         case(#keyPath(UIScrollView.contentSize), &MyObservationContext):
             print("contentSize height: ", webView.scrollView.contentSize.height)
             webView.invalidateIntrinsicContentSize()
+//            NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(StackViewController.invalidHeight), object: nil)
+//            self.perform(#selector(StackViewController.invalidHeight), with: nil, afterDelay: TimeInterval(1))
         case("frame", &MyObservationContext):
             print("frame: ", webView.cursorView()?.frame)
             if previousCursorFrame != webView.cursorView()?.frame {
@@ -91,6 +93,10 @@ class StackViewController: UIViewController {
             super.observeValue(forKeyPath: keyPath, of: object, change: change, context: context)
         }
     }
+//
+//    @objc func invalidHeight() {
+//        webView.invalidateIntrinsicContentSize()
+//    }
 }
 
 extension StackViewController: WKNavigationDelegate {
